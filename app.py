@@ -1,6 +1,6 @@
 import os
 import zipfile
-from flask import Flask, render_template, request, redirect, send_file, flash
+from flask import Flask, render_template, request, redirect, send_file, flash, url_for
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -39,8 +39,13 @@ def upload_file():
         with zipfile.ZipFile(zip_path, 'w') as zipf:
             zipf.write(file_path, arcname=filename)
 
-        # Send the zip file back to the user
-        return send_file(zip_path, as_attachment=True)
+        # Render output.html after upload
+        return render_template('output.html', zip_file=zip_filename)
+
+@app.route('/download/<zip_file>')
+def download_file(zip_file):
+    zip_path = os.path.join(app.config['UPLOAD_FOLDER'], zip_file)
+    return send_file(zip_path, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True)
